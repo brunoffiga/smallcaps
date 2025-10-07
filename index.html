@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3 SmallCaps Intelligence - Overview & Análise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ============================
+           CSS INTEGRADO - MODAL + TABLE
+           ============================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --success: #00c853;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --border: #dee2e6;
+            --secondary-dark: #2c3e50;
+            --card-bg: #2f4159;
+            --text-light: #f0f4f8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Navigation - AJUSTADO PARA FICAR IGUAL AO CHARTS.HTML */
+        .main-nav {
+            background: var(--dark);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1600px; /* Ajustado para 1600px */
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px; /* Ajustado para 30px */
+        }
+        
+        .nav-logo a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 20px 0; /* Ajustado para 20px */
+        }
+
+        .logo-text {
+            font-size: 1.5em; /* Ajustado para 1.5em */
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 8px; /* Ajustado para 8px */
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.7); /* Ajustado cor de texto para não ativo */
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 24px; /* Ajustado para 12px 24px */
+            border-radius: 8px; /* Ajustado para 8px */
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0, 102, 204, 0.2); /* Ajustado cor de hover/active */
+            color: white;
+        }
+
+        /* Hero Header */
+        .hero-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #0052a3 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        /* Container */
+        .container {
+            max-width: 95%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Section */
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .section-subtitle {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 25px;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            /* CORREÇÃO UX: Largura mínima para evitar quebra de linha */
+            min-width: 1900px; 
+        }
+        
+        .data-table thead {
+            background: var(--dark);
+        }
+        
+        .data-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            cursor: pointer;
+            user-select: none;
+            /* Prevenção de quebra de linha no cabeçalho */
+            white-space: nowrap; 
+        }
+        
+        .data-table th:hover {
+            background: rgba(0, 102, 204, 0.1);
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+             /* Prevenção de quebra de linha nos dados */
+            white-space: nowrap; 
+        }
+        
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+        
+        .data-table tbody tr:hover {
+            background: rgba(0, 102, 204, 0.15);
+        }
+        
+        .data-table tbody tr.selected {
+            background: rgba(0, 102, 204, 0.3);
+        }
+
+        /* Ticker Link */
+        .ticker-link {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        
+        .ticker-link:hover {
+            text-decoration: none;
+        }
+
+        /* Score Badge */
+        .score-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+            min-width: 50px;
+            text-align: center;
+            /* NOVO: Adicionei a classe .value-only para remover a cor de fundo do número */
+        }
+        
+        .score-excellent {
+            background: var(--success);
+            color: white;
+        }
+        
+        .score-good {
+            background: #66bb6a;
+            color: white;
+        }
+        
+        .score-fair {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .score-poor {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* NOVO: Estilo para o número de Score Global no Modal */
+        .analysis-card .score-value-only {
+            background: none !important;
+            padding: 0;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: white;
+            /* A cor do texto será definida pela classe de score na tag span */
+        }
+
+
+        /* Change Values */
+        .change-value.positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .change-value.negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Checkbox */
+        .select-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Compare Button */
+        .compare-section {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+        }
+        
+        .compare-btn {
+            background: var(--success);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,200,83,0.4);
+            transition: all 0.3s;
+        }
+        
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,200,83,0.6);
+        }
+        
+        .compare-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        
+        .modal.active {
+            display: block;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            max-width: 1700px;
+            margin-top: 50px !important;
+            margin: 0 auto;
+            border-radius: 15px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            background: var(--dark);
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 2.2em;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .modal-subtitle {
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+        }
+        
+        .modal-close {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            transform: rotate(90deg);
+            background: #d32f2f;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .modal-section {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .modal-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        /* Analysis Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .analysis-card {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .analysis-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        
+        .analysis-card .value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* Catalysts & Risks */
+        .catalysts-risks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .catalysts, .risks {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .catalysts {
+            border-left: 4px solid var(--success);
+        }
+        
+        .risks {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .catalysts h4 {
+            color: var(--success);
+            margin-bottom: 15px;
+        }
+        
+        .risks h4 {
+            color: var(--danger);
+            margin-bottom: 15px;
+        }
+        
+        .catalysts ul, .risks ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .catalysts li, .risks li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .catalysts li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .risks li::before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Compare Modal */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .compare-card {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+        }
+        
+        .compare-card h3 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .compare-card .company-name {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+        }
+        
+        .compare-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .compare-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+        
+        .compare-metric.highlight {
+            background: rgba(0,102,204,0.2);
+            border: 1px solid var(--primary);
+        }
+        
+        .compare-metric-label {
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .compare-metric-value {
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 20px;
+            margin-top: -10px;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero-title {
+                font-size: 2em;
+            }
+            .data-table {
+                font-size: 0.85em;
+            }
+            .catalysts-risks {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <span class="logo-text">SmallCaps B3</span>
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="sectors.html" class="nav-link">Setores</a></li>
+                <li><a href="charts.html" class="nav-link">Gráficos</a></li>
+                <li><a href="timeline.html" class="nav-link">Timeline</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero-header" style="margin-bottom: -80px;">
+        <div class="hero-content">
+            <h1 class="hero-title">SmallCaps B3</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section">
+            <div class="section-header">
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="data-table" id="companies-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all" class="select-checkbox"></th>
+                            <th data-sort-key="ranking">Rank</th>
+                            <th data-sort-key="ticker">Ticker</th>
+                            <th data-sort-key="sector">Setor</th>
+                            <th data-sort-key="currentPrice">Atual</th>
+                            <th data-sort-key="score">Score</th>
+                            <th data-sort-key="metrics.roe">ROE</th>
+                            <th data-sort-key="metrics.pe">P/L</th>
+                            
+                            <th data-sort-key="upside1Y">Up 1Y</th>
+                            <th data-sort-key="upside3Y">Up 3Y</th>
+                            <th data-sort-key="upside5Y">Up 5Y</th>
+                            <th data-sort-key="upside10Y">Up 10Y</th>
+
+                            <th data-sort-key="projections.target1Y">1Y</th>
+                            <th data-sort-key="projections.target3Y">3Y</th>
+                            <th data-sort-key="projections.target5Y">5Y</th>
+                            <th data-sort-key="projections.target10Y">10Y</th>
+
+                            <th data-sort-key="performance.ytd">YTD %</th>
+                            <th data-sort-key="metrics.dividendYield">DY %</th>
+                            <th data-sort-key="recommendation">Recomendação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companies-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="compare-section">
+        <button class="compare-btn" id="compare-btn" disabled onclick="openCompareModal()">
+            Comparar (<span id="compare-count">0</span>)
+        </button>
+    </div>
+
+    <div class="modal" id="analysis-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modal-ticker"></div>
+                    <div class="modal-subtitle" id="modal-company"></div>
+                </div>
+                <button class="modal-close" onclick="closeAnalysisModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                </div>
+        </div>
+    </div>
+
+    <div class="modal" id="compare-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Comparação de Ações</div>
+                    <div class="modal-subtitle">Análise lado a lado</div>
+                </div>
+                <button class="modal-close" onclick="closeCompareModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="compare-grid" id="compare-grid">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong>B3 SmallCaps</strong> Atualizado em Outubro 2025</p>
+        </div>
+    </footer>
+
+    <script src="data-companies.js"></script>
+    <script src="utils.js"></script>
+    <script src="confidence.js"></script> 
+    <script>
+        // ========================================
+        // APPLICATION STATE & CORE FUNCTIONS
+        // ========================================
+        
+        let companiesData = [];
+        let selectedCompanies = new Set();
+        let currentSort = { field: 'score', direction: 'desc' };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            // AQUI A CORREÇÃO DO ESCOPO: Chamamos renderTable DEPOIS de carregar os dados
+            renderTable(); 
+            setupEventListeners();
+        });
+        
+        function loadData() {
+            // Assume COMPANIES_DATABASE is loaded from data-companies.js
+            companiesData = COMPANIES_DATABASE || [];
+            console.log(`✅ ${companiesData.length} empresas carregadas`);
+            
+            // Adiciona a Confiabilidade ao carregar os dados, para uso imediato.
+            // Isso garante que o campo 'confidence' exista.
+            companiesData = companiesData.map(c => {
+                if (typeof calculateProjectionConfidence !== 'undefined') {
+                    c.confidence = calculateProjectionConfidence(c);
+                }
+                return c;
+            });
+        }
+        
+        function setupEventListeners() {
+            // Select all checkbox
+            document.getElementById('select-all').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    companiesData.forEach(c => selectedCompanies.add(c.ticker));
+                } else {
+                    selectedCompanies.clear();
+                }
+                renderTable();
+                updateCompareButton();
+            });
+            
+            // Sort headers
+            document.querySelectorAll('th[data-sort-key]').forEach(th => {
+                th.addEventListener('click', () => {
+                    handleSort(th.dataset.sortKey);
+                });
+            });
+        }
+        
+        // ========================================
+        // PROJECTION ACCESS & CALCULATION (Minimalist & Safe)
+        // ========================================
+        
+        /**
+         * Calcula o Upside dado um Preço Alvo e o Preço Atual
+         */
+        function calculateUpside(currentPrice, targetPrice) {
+            if (!currentPrice || !targetPrice) return null;
+            return ((targetPrice - currentPrice) / currentPrice) * 100;
+        }
+
+        /**
+         * Obtém o Target Price de um horizonte específico (1Y, 3Y, 5Y, 10Y).
+         * Prioriza o campo 'projections' da base de dados.
+         */
+        function getTargetPrice(company, horizon) {
+            // 1. Tenta acessar o campo 'projections' diretamente (melhor fonte)
+            const target = company.projections ? company.projections[`target${horizon}`] : null;
+            if (target) return target;
+
+            // 2. Fallback para 'targetPrice' (geralmente 1Y Consenso)
+            if (horizon === '1Y') return company.targetPrice || null;
+            
+            return null;
+        }
+
+        // ========================================
+        // TABLE RENDERING
+        // ========================================
+        
+        function renderTable() {
+            const tbody = document.getElementById('companies-table-body');
+            // Correção do Escopo: Usa companiesData global como base para ordenação
+            const sorted = sortCompanies([...companiesData]);
+            
+            tbody.innerHTML = sorted.map(company => {
+                const isSelected = selectedCompanies.has(company.ticker);
+                
+                // 1. OBTENÇÃO DOS TARGETS
+                const target1Y = getTargetPrice(company, '1Y'); 
+                const target3Y = getTargetPrice(company, '3Y'); 
+                const target5Y = getTargetPrice(company, '5Y'); 
+                const target10Y = getTargetPrice(company, '10Y'); 
+                
+                // 2. CÁLCULO DOS UPSIDES RELACIONADOS
+                const upside1Y = calculateUpside(company.currentPrice, target1Y);
+                const upside3Y = calculateUpside(company.currentPrice, target3Y);
+                const upside5Y = calculateUpside(company.currentPrice, target5Y);
+                const upside10Y = calculateUpside(company.currentPrice, target10Y);
+
+                // 3. Demais dados da tabela
+                const roe = company.metrics?.roe;
+                const pl = company.metrics?.pe;
+                const ytd = company.performance?.ytd; 
+                const dy = company.metrics?.dividendYield;
+                const score = company.score;
+
+                return `
+                    <tr class="${isSelected ? 'selected' : ''}" data-ticker="${company.ticker}">
+                        <td>
+                            <input type="checkbox" 
+                                   class="select-checkbox" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="toggleSelection('${company.ticker}')">
+                        </td>
+                        <td>${company.ranking}</td>
+                        <td>
+                            <a href="#" class="ticker-link" onclick="openAnalysisModal('${company.ticker}'); return false;">
+                                ${company.ticker}
+                            </a>
+                        </td>
+                        <td>${company.sector}</td>
+                        <td>R$ ${company.currentPrice.toFixed(2)}</td>
+                        <td>
+                            <span class="score-badge ${getScoreClass(company.score)}">
+                                ${company.score}
+                            </span>
+                        </td>
+                        <td class="${company.metrics.roe > 20 ? 'change-value positive' : ''}">${company.metrics.roe.toFixed(1)}%</td>
+                        <td>${company.metrics.pe > 0 ? company.metrics.pe.toFixed(2) + 'x' : 'N/A'}</td>
+                        
+                        <td class="change-value ${upside1Y > 0 ? 'positive' : 'negative'}">${formatPercentage(upside1Y)}</td>
+                        <td class="change-value ${upside3Y > 0 ? 'positive' : 'negative'}">${formatPercentage(upside3Y)}</td>
+                        <td class="change-value ${upside5Y > 0 ? 'positive' : 'negative'}">${formatPercentage(upside5Y)}</td>
+                        <td class="change-value ${upside10Y > 0 ? 'positive' : 'negative'}">${formatPercentage(upside10Y)}</td>
+
+                        <td>${formatCurrency(target1Y)}</td>
+                        <td>${formatCurrency(target3Y)}</td>
+                        <td>${formatCurrency(target5Y)}</td>
+                        <td>${formatCurrency(target10Y)}</td>
+
+                        <td class="change-value ${ytd > 0 ? 'positive' : 'negative'}">
+                            ${ytd ? formatPercentage(ytd) : '-'}
+                        </td>
+                        <td>${company.metrics.dividendYield.toFixed(2)}%</td>
+                        <td>${company.recommendation}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            if (companiesData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="19" style="text-align:center;">Nenhuma empresa encontrada no database.</td></tr>';
+            }
+        }
+        
+        function sortCompanies(companies) {
+            return companies.sort((a, b) => {
+                const { field, direction } = currentSort;
+                const mult = direction === 'asc' ? 1 : -1;
+                
+                // Função de acesso aninhado (melhorada para targets)
+                const getNestedValue = (obj, path) => {
+                    if (!obj || !path) return null;
+
+                    // Exceção para as novas colunas de Target Price
+                    if (path.startsWith('projections.target')) {
+                        const targetKey = path.split('.')[1]; 
+                        return getTargetPrice(obj, targetKey.replace('target', '')); 
+                    }
+                    
+                    // Exceção para as novas colunas de Upside
+                    if (path.startsWith('upside')) {
+                         const horizon = path.replace('upside', '');
+                         return calculateUpside(obj.currentPrice, getTargetPrice(obj, horizon));
+                    }
+
+                    return path.split('.').reduce((o, i) => (o && o[i] !== undefined) ? o[i] : null, obj);
+                };
+
+                let aVal = getNestedValue(a, field);
+                let bVal = getNestedValue(b, field);
+                
+                // Lidar com strings (Tickers, Setores)
+                if (typeof aVal === 'string' && typeof bVal === 'string') {
+                    return mult * aVal.localeCompare(bVal);
+                }
+                
+                // Mover null/undefined para o final
+                if (aVal === null || aVal === undefined) return 1;
+                if (bVal === null || bVal === undefined) return -1;
+
+                // Ordenação numérica
+                return mult * (aVal - bVal);
+            });
+        }
+        
+        function handleSort(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                // Heurística de UX: a maioria das métricas (score, preço, upside) se quer no 'desc'
+                currentSort.direction = ['ticker', 'sector', 'recommendation'].includes(field) ? 'asc' : 'desc';
+            }
+            renderTable();
+        }
+        
+        // ========================================
+        // Funções Auxiliares (Simplificadas)
+        // ========================================
+        
+        // Função formatPercentage (para YTD e Upside)
+        function formatPercentage(value, decimals = 1) {
+            if (value === null || value === undefined) return '-';
+            return `${value > 0 ? '+' : ''}${value.toFixed(decimals)}%`;
+        }
+
+        // Função formatCurrency (assumindo que utils.js está carregado, mas mantendo a definição local para segurança)
+        function formatCurrency(value) {
+            if (value === null || value === undefined) return '-';
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-excellent';
+            if (score >= 70) return 'score-good';
+            if (score >= 50) return 'score-fair';
+            return 'score-poor';
+        }
+
+        // Funções de seleção e modal (mantidas no escopo original, apenas para garantir o HTML funcional)
+        function toggleSelection(ticker) {
+            if (selectedCompanies.has(ticker)) {
+                selectedCompanies.delete(ticker);
+            } else {
+                selectedCompanies.add(ticker);
+            }
+            renderTable();
+            updateCompareButton();
+        }
+        
+        function updateCompareButton() {
+            const btn = document.getElementById('compare-btn');
+            const count = document.getElementById('compare-count');
+            count.textContent = selectedCompanies.size;
+            btn.disabled = selectedCompanies.size < 2;
+        }
+
+        function generateAnalysisHTML(company) {
+            // NOVO: Calculando Conviction Score (Confidence)
+            const convictionScore = company.confidence || 0;
+            const convictionRating = Math.round(convictionScore / 20); // 1 a 5 rating
+            
+            // Placeholder para Market Cap (simulando formatLargeNumber)
+            const marketCapFormatted = company.marketCap ? `R$ ${(company.marketCap / 1e9).toFixed(2)}B` : '-';
+
+            // Placeholder para os Highlights (evitando Uncaught)
+            const getArrayContent = (arr) => arr && Array.isArray(arr) ? arr.map(c => `<li>${c}</li>`).join('') : '<li>Dados não disponíveis.</li>';
+            
+            return `
+                <div class="modal-section">
+                    <h3>⭐ Scores Multidimensionais</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h4>Score Global</h4>
+                             <span class="score-badge score-value-only ${getScoreClass(company.score)}">
+                                ${company.score}
+                            </span>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>ROE</h4>
+                            <div class="value">${company.metrics.roe?.toFixed(1) || '-'}%</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>Upside 12M</h4>
+                            <div class="value" style="color: var(--success);">+${company.upside?.toFixed(1) || '-'}%</div>
+                        </div>
+                    </div>
+                     <div class="chart-container">
+                        <canvas id="scores-chart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>💰 Valuation & Preços-Alvo</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h4>Preço Atual</h4>
+                            <div class="value">R$ ${company.currentPrice?.toFixed(2) || '-'}</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>Target 12M</h4>
+                            <div class="value">R$ ${company.targetPrice?.toFixed(2) || '-'}</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>P/L</h4>
+                            <div class="value">${company.metrics.pe > 0 ? company.metrics.pe.toFixed(2) + 'x' : 'N/A'}</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>Dívida/EBITDA</h4>
+                            <div class="value">${company.metrics.netDebtToEbitda?.toFixed(2) || '-'}x</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>📈 Performance Histórica (Simulação e Projeção Contínua)</h3>
+                    <div class="chart-container">
+                        <canvas id="price-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>📊 Fundamentos</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-card">
+                            <h4>Market Cap</h4>
+                            <div class="value">${marketCapFormatted}</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>Margem EBITDA</h4>
+                            <div class="value">${company.metrics.ebitdaMargin?.toFixed(1) || '-'}%</div>
+                        </div>
+                        <div class="analysis-card">
+                            <h4>Cresc. Lucro</h4>
+                            <div class="value">${company.metrics.earningsGrowth?.toFixed(1) || '-'}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>🎯 Catalisadores & Riscos</h3>
+                    <div class="catalysts-risks">
+                        <div class="catalysts">
+                            <h4>✅ Catalisadores</h4>
+                            <ul>${getArrayContent(company.catalysts)}</ul>
+                        </div>
+                        <div class="risks">
+                            <h4>⚠️ Riscos</h4>
+                            <ul>${getArrayContent(company.risks)}</ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>💡 Key Highlights</h3>
+                    <ul style="list-style: none; padding: 0;">${getArrayContent(company.keyHighlights)}</ul>
+                </div>
+                
+                <div class="modal-section" style="border-left: 4px solid ${
+                    company.recommendation.includes('BUY') ? 'var(--success)' : 
+                    company.recommendation.includes('HOLD') ? 'var(--warning)' : 'var(--danger)'
+                };">
+                    <h3>🎲 Recomendação: ${company.recommendation}</h3>
+                    <p>Análise de Conviction: <strong style="color: var(--primary);">${convictionRating} / 5</strong> (${convictionScore.toFixed(0)}% de confiança)</p>
+                    <p style="margin-top: 15px; line-height: 1.8;">
+                        Baseado em análise multidimensional considerando qualidade, valor, crescimento e momentum.
+                        Upside de ${company.upside?.toFixed(1) || '-'}% para os próximos 12 meses.
+                    </p>
+                </div>
+            `;
+        }
+
+        function openAnalysisModal(ticker) {
+            const company = companiesData.find(c => c.ticker === ticker);
+            if (!company) return;
+            
+            document.getElementById('modal-ticker').textContent = company.ticker;
+            document.getElementById('modal-company').textContent = company.name;
+            
+            // 1. Gerar o HTML
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = generateAnalysisHTML(company); 
+            
+            // 2. Mostrar o modal
+            document.getElementById('analysis-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // 3. Renderizar gráficos com pequeno delay
+            setTimeout(() => {
+                renderPriceChart(company);
+                renderScoresChart(company);
+            }, 100);
+        }
+        
+        function closeAnalysisModal() {
+            document.getElementById('analysis-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        /**
+         * Renderiza o gráfico de preço com projeções contínuas
+         */
+        function renderPriceChart(company) {
+            const ctx = document.getElementById('price-chart');
+            if (!ctx) return;
+            
+            const months = ['Out/24', 'Fev/25', 'Jun/25', 'Out/25']; // Histórico Simulado
+            const futureYears = ['1Y', '3Y', '5Y', '10Y']; // Projeções
+            
+            // 1. Dados Históricos Simulados (passado)
+            const historicalPrices = [
+                company.currentPrice * 0.85, 
+                company.currentPrice * 0.90, 
+                company.currentPrice * 0.95, 
+                company.currentPrice
+            ];
+            
+            // 2. Dados de Projeção (futuro)
+            const targetPrices = futureYears.map(h => getTargetPrice(company, h));
+            
+            const allLabels = [...months, '1Y', '3Y', '5Y', '10Y'];
+            const allPrices = [...historicalPrices, ...targetPrices];
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allLabels,
+                    datasets: [
+                    {
+                        label: 'Preço Histórico',
+                        data: [...historicalPrices, null, null, null, null], // Apenas no histórico
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Projeção de Preço',
+                        data: [null, null, null, company.currentPrice, ...targetPrices], // Começa no preço atual
+                        borderColor: '#00c853', // Cor da Projeção (Sucesso)
+                        backgroundColor: 'rgba(0, 200, 83, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                    }
+                }
+            });
+        }
+        
+        function renderScoresChart(company) {
+            const ctx = document.getElementById('scores-chart');
+            if (!ctx) return;
+            
+            // Simulação de dados (mantida a lógica original)
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Qualidade', 'Valor', 'Crescimento', 'Momentum', 'Dividend', 'Eficiência'],
+                    datasets: [{
+                        label: company.ticker,
+                        data: [
+                            company.score,
+                            Math.min(100, (30 / (company.metrics.pe || 1)) * 100), // Evitando divisão por zero
+                            Math.min(100, (company.metrics.revenueGrowth || 0) * 2),
+                            Math.min(100, 50 + (company.performance.ytd || 0)),
+                            (company.metrics.dividendYield || 0) * 10,
+                            (company.metrics.roe || 0)
+                        ],
+                        backgroundColor: 'rgba(0, 102, 204, 0.2)',
+                        borderColor: '#0066cc',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            pointLabels: { color: 'white' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+        }
+        
+        // ========================================
+        // COMPARISON MODAL
+        // ========================================
+        
+        function openCompareModal() {
+            const selected = Array.from(selectedCompanies).map(ticker => 
+                companiesData.find(c => c.ticker === ticker)
+            );
+            
+            const grid = document.getElementById('compare-grid');
+            
+            // NOVO: Gerar o conteúdo dinâmico de comparação (com dados de projeção)
+            grid.innerHTML = selected.map(company => {
+                
+                // 1. OBTENÇÃO DOS TARGETS E UPSIDES NECESSÁRIOS
+                const target1Y = getTargetPrice(company, '1Y');
+                const target3Y = getTargetPrice(company, '3Y');
+                const target5Y = getTargetPrice(company, '5Y');
+                const target10Y = getTargetPrice(company, '10Y');
+
+                const upside1Y = calculateUpside(company.currentPrice, target1Y);
+                const upside3Y = calculateUpside(company.currentPrice, target3Y);
+                const upside5Y = calculateUpside(company.currentPrice, target5Y);
+                const upside10Y = calculateUpside(company.currentPrice, target10Y);
+                
+                return `
+                    <div class="compare-card">
+                        <h3>${company.ticker}</h3>
+                        <div class="company-name">${company.name}</div>
+                        
+                        <div class="compare-metrics">
+                            <div class="compare-metric">
+                                <span class="compare-metric-label">Score</span>
+                                <span class="compare-metric-value">${company.score}</span>
+                            </div>
+                            <div class="compare-metric">
+                                <span class="compare-metric-label">Preço Atual</span>
+                                <span class="compare-metric-value">R$ ${company.currentPrice.toFixed(2)}</span>
+                            </div>
+                            
+                            <div class="compare-metric highlight">
+                                <span class="compare-metric-label">Up 1Y</span>
+                                <span class="compare-metric-value ${upside1Y > 0 ? 'change-value positive' : 'change-value negative'}">
+                                    ${formatPercentage(upside1Y)}
+                                </span>
+                            </div>
+                            <div class="compare-metric highlight">
+                                <span class="compare-metric-label">Up 3Y</span>
+                                <span class="compare-metric-value ${upside3Y > 0 ? 'change-value positive' : 'change-value negative'}">
+                                    ${formatPercentage(upside3Y)}
+                                </span>
+                            </div>
+                            <div class="compare-metric highlight">
+                                <span class="compare-metric-label">Up 5Y</span>
+                                <span class="compare-metric-value ${upside5Y > 0 ? 'change-value positive' : 'change-value negative'}">
+                                    ${formatPercentage(upside5Y)}
+                                </span>
+                            </div>
+                            <div class="compare-metric highlight">
+                                <span class="compare-metric-label">Up 10Y</span>
+                                <span class="compare-metric-value ${upside10Y > 0 ? 'change-value positive' : 'change-value negative'}">
+                                    ${formatPercentage(upside10Y)}
+                                </span>
+                            </div>
+
+                            <div class="compare-metric">
+                                <span class="compare-metric-label">ROE</span>
+                                <span class="compare-metric-value">${company.metrics.roe?.toFixed(1) || '-'}%</span>
+                            </div>
+                            <div class="compare-metric">
+                                <span class="compare-metric-label">P/L</span>
+                                <span class="compare-metric-value">${company.metrics.pe > 0 ? company.metrics.pe.toFixed(2) + 'x' : 'N/A'}</span>
+                            </div>
+                            <div class="compare-metric">
+                                <span class="compare-metric-label">Dívida/EBITDA</span>
+                                <span class="compare-metric-value">${company.metrics.netDebtToEbitda?.toFixed(2) || '-'}x</span>
+                            </div>
+                            <div class="compare-metric highlight">
+                                <span class="compare-metric-label">Recomendação</span>
+                                <span class="compare-metric-value">${company.recommendation}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Ativa o modal (com a correção do erro de espaço)
+            document.getElementById('compare-modal').classList.add('active'); 
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCompareModal() {
+            document.getElementById('compare-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline de Eventos - B3 SmallCaps Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+    
+    <!-- dhtmlxGantt CSS -->
+    <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+    
+    <style>
+        /* ============================
+           TIMELINE.HTML V5.0 - REFACTORED & FIXED
+           ✅ Todos os eventos carregados
+           ✅ Ordenação de datas corrigida
+           ✅ Filtros dinâmicos otimizados
+           ============================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0066cc;
+            --success: #00c853;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --info: #00bcd4;
+            --dark: #1a1a2e;
+            --secondary-dark: #2c3e50;
+            --card-bg: #2f4159;
+            --text-light: #f0f4f8;
+            --border: rgba(255,255,255,0.1);
+            --gradient-primary: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* ==================== NAVIGATION ==================== */
+        .main-nav {
+            background: var(--dark);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+        
+        .nav-logo a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 20px 0;
+        }
+
+        .logo-text {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(0, 102, 204, 0.2);
+            color: white;
+        }
+
+        /* ==================== HEADER ==================== */
+        .page-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 50px 30px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header-content h1 {
+            font-size: 2.8em;
+            margin-bottom: 16px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .header-content p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 0;
+        }
+
+        /* ==================== STATS DASHBOARD ==================== */
+        .stats-dashboard {
+            max-width: 1600px;
+            margin: -40px auto 30px;
+            padding: 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            border-radius: 0 12px 0 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border-left-width: 6px;
+        }
+
+        .stat-card.stat-primary { border-left-color: var(--primary); }
+        .stat-card.stat-success { border-left-color: var(--success); }
+        .stat-card.stat-danger { border-left-color: var(--danger); }
+        .stat-card.stat-warning { border-left-color: var(--warning); }
+        .stat-card.stat-info { border-left-color: var(--info); }
+
+        .stat-label {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-description {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2.5em;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        /* ==================== CONTAINER ==================== */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px 30px 40px;
+        }
+
+        /* ==================== DEBUG PANEL ==================== */
+        .debug-panel {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .debug-panel h3 {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .debug-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .debug-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--success);
+        }
+
+        /* ==================== FILTERS SECTION ==================== */
+        .filters-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 102, 204, 0.3);
+        }
+        
+        .filters-header h2 {
+            font-size: 1.6em;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-group select {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+            background: rgba(0,0,0,0.3);
+            color: var(--text-light);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            border: 2px solid transparent;
+            font-weight: 500;
+        }
+        
+        .checkbox-label:hover {
+            background: rgba(0, 102, 204, 0.15);
+            border-color: rgba(0, 102, 204, 0.3);
+        }
+        
+        .checkbox-label input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: -42px;
+        }
+        
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-light);
+            border: 2px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* ==================== VIEW CONTROLS ==================== */
+        .view-controls {
+            display: flex;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .view-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--border);
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+        
+        .view-btn:hover {
+            background: rgba(0, 102, 204, 0.15);
+            border-color: rgba(0, 102, 204, 0.3);
+        }
+        
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+        }
+
+        /* ==================== TIMELINE CONTAINER ==================== */
+        .timeline-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .events-count {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .events-count span {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 1.2em;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sort-controls select {
+            padding: 8px 14px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            color: var(--text-light);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sort-controls select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* ==================== VIEW SECTIONS ==================== */
+        .view-section {
+            display: none;
+        }
+        
+        .view-section.active {
+            display: block;
+        }
+
+        /* ==================== CALENDAR STYLES ==================== */
+        #calendar-view .fc {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        #calendar-view .fc-toolbar-title {
+            color: white !important;
+            font-weight: 700 !important;
+        }
+        
+        #calendar-view .fc-button {
+            background: var(--primary) !important;
+            border: none !important;
+        }
+        
+        #calendar-view .fc-button:hover {
+            opacity: 0.9 !important;
+        }
+        
+        #calendar-view .fc-daygrid-day-number {
+            color: rgba(255,255,255,0.8) !important;
+        }
+        
+        #calendar-view .fc-col-header-cell-cushion {
+            color: var(--primary) !important;
+            font-weight: 600 !important;
+        }
+        
+        #calendar-view .fc-event {
+            border-radius: 6px !important;
+            padding: 4px 8px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+        }
+
+        /* ==================== GANTT STYLES ==================== */
+        #gantt-view {
+            height: 600px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .gantt_grid_scale,
+        .gantt_task_scale {
+            background: var(--dark) !important;
+            color: white !important;
+        }
+        
+        .gantt_grid_head_cell {
+            color: var(--primary) !important;
+            font-weight: 600 !important;
+        }
+        
+        .gantt_task .gantt_task_content {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+
+        /* ==================== EVENT CARDS ==================== */
+        .events-group {
+            margin-bottom: 35px;
+        }
+
+        .group-header {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .group-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: white;
+        }
+
+        .group-count {
+            background: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .event-card {
+            background: rgba(0,0,0,0.2);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .event-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            border-left-width: 6px;
+            border-color: rgba(0, 102, 204, 0.2);
+        }
+        
+        .event-card.impact-high { border-left-color: var(--danger); }
+        .event-card.impact-medium { border-left-color: var(--warning); }
+        .event-card.impact-low { border-left-color: var(--success); }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 20px;
+        }
+        
+        .event-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .event-ticker {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95em;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+        }
+        
+        .event-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .countdown {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85em;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .countdown.urgent {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .event-description {
+            color: rgba(255,255,255,0.85);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            white-space: pre-line;
+        }
+        
+        .event-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .meta-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .meta-label {
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .meta-value {
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        
+        .badge-positive {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 2px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .badge-neutral {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+        }
+        
+        .event-sources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .source-tag {
+            background: rgba(0,0,0,0.3);
+            color: rgba(255,255,255,0.7);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .source-tag:hover {
+            background: rgba(0, 102, 204, 0.15);
+            border-color: rgba(0, 102, 204, 0.3);
+            color: white;
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            opacity: 0.3;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.6em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .empty-state p {
+            font-size: 1em;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px;
+            margin-top: 40px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 968px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .header-content h1 {
+                font-size: 2em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .event-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <span class="logo-text">SmallCaps B3</span>
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="sectors.html" class="nav-link">Setores</a></li>
+                <li><a href="charts.html" class="nav-link">Gráficos</a></li>
+                <li><a href="timeline.html" class="nav-link active">Timeline</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1>Timeline de Eventos</h1>
+        </div>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="stats-dashboard">
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card stat-primary">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Total de Eventos</div>
+                <div class="stat-value" id="stat-total">-</div>
+                <div class="stat-description">Todos os períodos</div>
+            </div>
+            
+            <div class="stat-card stat-success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Eventos Futuros</div>
+                <div class="stat-value" id="stat-upcoming">-</div>
+                <div class="stat-description">Próximos 12 meses</div>
+            </div>
+            
+            <div class="stat-card stat-danger">
+                <div class="stat-icon">🔴</div>
+                <div class="stat-label">Alto Impacto</div>
+                <div class="stat-value" id="stat-high-impact">-</div>
+                <div class="stat-description">Eventos críticos</div>
+            </div>
+            
+            <div class="stat-card stat-warning">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">Empresas</div>
+                <div class="stat-value" id="stat-tickers">-</div>
+                <div class="stat-description">Com eventos</div>
+            </div>
+            
+            <div class="stat-card stat-info" style="display: none;">
+                <div class="stat-icon">📈</div>
+                <div class="stat-label">Sentimento</div>
+                <div class="stat-value" id="stat-sentiment">-</div>
+                <div class="stat-description">Média geral</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Debug Panel -->
+        <div class="debug-panel" id="debug-panel">
+            <div class="debug-info" id="debug-info">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <section class="filters-section">
+            
+            <div class="filters-grid">
+                <!-- Empresa -->
+                <div class="filter-group">
+                    <label>Empresa</label>
+                    <select id="filter-ticker">
+                        <option value="">📊 Todas as Empresas</option>
+                        <option value="PLPL3">PLPL3 - Plano & Plano</option>
+                        <option value="CURY3">CURY3 - Cury Construtora</option>
+                        <option value="DIRR3">DIRR3 - Direcional</option>
+                        <option value="LAVV3">LAVV3 - Lavvi</option>
+                        <option value="TEND3">TEND3 - Tenda</option>
+                        <option value="VIVA3">VIVA3 - Vivara</option>
+                        <option value="CASH3">CASH3 - Méliuz</option>
+                        <option value="ALUP11">ALUP11 - Alupar</option>
+                        <option value="ONCO3">ONCO3 - Oncoclínicas</option>
+                        <option value="SMFT3">SMFT3 - Smart Fit</option>
+                        <option value="INTB3">INTB3 - Intelbras</option>
+                        <option value="BRFS3">BRFS3 - BRF</option>
+                        <option value="MYPK3">MYPK3 - Iochpe-Maxion</option>
+                        <option value="BRAV3">BRAV3 - Brava Energia</option>
+                        <option value="SOJA3">SOJA3 - Boa Safra</option>
+                        <option value="SLCE3">SLCE3 - SLC Agrícola</option>
+                        <option value="PGMN3">PGMN3 - Pague Menos</option>
+                        <option value="MACRO">MACRO - Eventos Macroeconômicos</option>
+                    </select>
+                </div>
+                
+                <!-- Período -->
+                <div class="filter-group">
+                    <label>Período</label>
+                    <select id="filter-period">
+                        <option value="7">📅 Próximos 7 dias</option>
+                        <option value="30">📅 Próximos 30 dias</option>
+                        <option value="60">📅 Próximos 60 dias</option>
+                        <option value="90">📅 Próximos 90 dias</option>
+                        <option value="180">📅 Próximos 6 meses</option>
+                        <option value="365">📅 Próximo ano</option>
+                        <option value="all" selected>♾️ Todos os Eventos</option>
+                    </select>
+                </div>
+                
+                <!-- Impacto -->
+                <div class="filter-group">
+                    <label>Nível de Impacto</label>
+                    <select id="filter-impact">
+                        <option value="">🎯 Todos os Níveis</option>
+                        <option value="high">🔴 Alto Impacto</option>
+                        <option value="medium">🟡 Médio Impacto</option>
+                        <option value="low">🟢 Baixo Impacto</option>
+                    </select>
+                </div>
+                
+                <!-- Tipo de Evento -->
+                <div class="filter-group">
+                    <label>Tipo de Evento</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="earnings" checked>Resultados
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="corporate" checked>Corp
+                        </label>
+                        <label class="checkbox-label"> 
+                            <input type="checkbox" value="macro" checked>Macro
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="technical" checked>Tech
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="rumors" checked>Rumor
+                        </label>
+                        <label class="checkbox-label" style="display: none;">
+                            <input type="checkbox" value="regulatory" checked>Reg
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="resetFilters()">🔄 Limpar Filtros</button>
+                <button class="btn btn-secondary" onclick="exportEvents()">💾 Exportar CSV</button>
+            </div>
+        </section>
+
+        <!-- View Controls -->
+        <div class="view-controls">
+            <button class="view-btn active" onclick="changeView('list')">📋 Lista Agrupada</button>
+            <button class="view-btn" onclick="changeView('calendar')">📅 Calendário</button>
+            <button class="view-btn" onclick="changeView('gantt')">📊 Gantt</button>
+        </div>
+
+        <!-- Events Timeline -->
+        <section class="timeline-container">
+            <div class="events-header">
+                <div class="events-count" id="events-count">
+                    Mostrando <span>0</span> eventos
+                </div>
+                <div class="sort-controls">
+                    <label style="color: rgba(255,255,255,0.7); font-size: 0.9em; font-weight: 600;">Ordenar por:</label>
+                    <select id="sort-select" onchange="applyFilters()">
+                        <option value="date-asc">📅 Data (Mais próximos)</option>
+                        <option value="date-desc">📅 Data (Mais distantes)</option>
+                        <option value="impact-desc">🔴 Impacto (Maior)</option>
+                        <option value="ticker">🏢 Empresa (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- List View -->
+            <div id="list-view" class="view-section active">
+                <div id="events-list"></div>
+            </div>
+            
+            <!-- Calendar View -->
+            <div id="calendar-view" class="view-section">
+                <div id="calendar"></div>
+            </div>
+            
+            <!-- Gantt View -->
+            <div id="gantt-view" class="view-section"></div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong>B3 SmallCaps Pro</strong> | Timeline de Eventos v5.0 REFACTORED | Atualizado em Outubro 2025</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="events-engine-updated.js"></script>
+    
+    <!-- FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    
+    <!-- dhtmlxGantt -->
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+    
+    <script>
+        /* ============================
+           REFACTORED JAVASCRIPT v5.0
+           ✅ Carrega TODOS os eventos
+           ✅ Ordenação correta de datas
+           ✅ Filtros otimizados
+           ============================ */
+        
+        let calendar = null;
+        let currentView = 'list';
+        let filteredEvents = [];
+        let allEvents = [];
+        
+        // ==================== FUNÇÃO CRÍTICA: Normalizar data (sem hora) ====================
+        function normalizeDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date;
+        }
+        
+        // ==================== FUNÇÃO CRÍTICA: Carregar TODOS os eventos ====================
+        function loadAllEvents() {
+            let events = [];
+            
+            // Iterar sobre TODAS as chaves do EVENTS_DATABASE
+            Object.keys(EVENTS_DATABASE).forEach(key => {
+                const tickerEvents = EVENTS_DATABASE[key];
+                
+                // Adicionar ticker a cada evento se não existir
+                tickerEvents.forEach(event => {
+                    events.push({
+                        ...event,
+                        ticker: event.ticker || key, // Garantir que ticker sempre existe
+                        dateObject: normalizeDate(event.date) // Adicionar objeto Date para ordenação
+                    });
+                });
+            });
+            
+            // Log de debug
+            console.log(`✅ Total de eventos carregados: ${events.length}`);
+            console.log('📊 Breakdown por ticker:');
+            Object.keys(EVENTS_DATABASE).forEach(k => {
+                console.log(`  ${k}: ${EVENTS_DATABASE[k].length} eventos`);
+            });
+            
+            return events;
+        }
+        
+        // ==================== FUNÇÃO: Calcular estatísticas ====================
+        function calculateStats(events) {
+            const today = normalizeDate(new Date().toISOString().split('T')[0]);
+            const futureEvents = events.filter(e => e.dateObject >= today);
+            const highImpact = events.filter(e => e.impact === 'high');
+            const tickers = [...new Set(events.map(e => e.ticker))].length;
+            
+            // Sentimento médio
+            let sentimentSum = 0;
+            events.forEach(e => {
+                if (e.sentiment === 'positive') sentimentSum += 1;
+                else if (e.sentiment === 'negative') sentimentSum -= 1;
+            });
+            const avgSentiment = events.length > 0 ? sentimentSum / events.length : 0;
+            const sentimentLabel = avgSentiment > 0.1 ? '📈 Positivo' : 
+                                   avgSentiment < -0.1 ? '📉 Negativo' : '➖ Neutro';
+            
+            document.getElementById('stat-total').textContent = events.length;
+            document.getElementById('stat-upcoming').textContent = futureEvents.length;
+            document.getElementById('stat-high-impact').textContent = highImpact.length;
+            document.getElementById('stat-tickers').textContent = tickers;
+            document.getElementById('stat-sentiment').textContent = sentimentLabel;
+            document.getElementById('stat-sentiment').style.fontSize = '1.5em';
+        }
+        
+        // ==================== FUNÇÃO: Atualizar debug panel ====================
+        function updateDebugPanel(filtered) {
+            const debugInfo = document.getElementById('debug-info');
+            
+            const breakdown = {};
+            filtered.forEach(e => {
+                breakdown[e.ticker] = (breakdown[e.ticker] || 0) + 1;
+            });
+            
+            let html = `
+                <div class="debug-item">
+                    <strong>Total:</strong> ${allEvents.length}
+                </div>
+                <div class="debug-item">
+                    <strong>Filtrados:</strong> ${filtered.length}
+                </div>
+                <div class="debug-item">
+                    <strong>Empresas:</strong> ${Object.keys(breakdown).length}
+                </div>
+            `;
+            
+            Object.keys(breakdown).sort().forEach(ticker => {
+                html += `
+                    <div class="debug-item">
+                        <strong>${ticker}:</strong> ${breakdown[ticker]}
+                    </div>
+                `;
+            });
+            
+            debugInfo.innerHTML = html;
+        }
+        
+        // ==================== FUNÇÃO: Calcular countdown ====================
+        function getCountdown(dateString) {
+            const eventDate = normalizeDate(dateString);
+            const today = normalizeDate(new Date().toISOString().split('T')[0]);
+            const diffTime = eventDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return { text: 'Passou', urgent: false };
+            if (diffDays === 0) return { text: 'HOJE!', urgent: true };
+            if (diffDays === 1) return { text: 'Amanhã', urgent: true };
+            if (diffDays <= 7) return { text: `${diffDays} dias`, urgent: true };
+            if (diffDays <= 30) return { text: `${diffDays} dias`, urgent: false };
+            
+            const weeks = Math.floor(diffDays / 7);
+            if (weeks < 8) return { text: `${weeks} semanas`, urgent: false };
+            
+            const months = Math.floor(diffDays / 30);
+            return { text: `${months} ${months > 1 ? 'meses' : 'mês'}`, urgent: false };
+        }
+        
+        // ==================== FUNÇÃO: Formatar data ====================
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        
+        // ==================== FUNÇÃO: Agrupar eventos por ticker ====================
+        function groupEventsByTicker(events) {
+            const grouped = {};
+            events.forEach(event => {
+                const ticker = event.ticker || 'GERAL';
+                if (!grouped[ticker]) {
+                    grouped[ticker] = [];
+                }
+                grouped[ticker].push(event);
+            });
+            return grouped;
+        }
+        
+        // ==================== FUNÇÃO: Aplicar filtros ====================
+        function applyFilters() {
+            const ticker = document.getElementById('filter-ticker').value;
+            const period = document.getElementById('filter-period').value;
+            const impact = document.getElementById('filter-impact').value;
+            const sortBy = document.getElementById('sort-select').value;
+            
+            const typeCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+            const types = Array.from(typeCheckboxes).map(cb => cb.value);
+            
+            // Começar com todos os eventos
+            let filtered = [...allEvents];
+            
+            // Filtrar por ticker
+            if (ticker && ticker !== '') {
+                filtered = filtered.filter(e => e.ticker === ticker);
+            }
+            
+            // Filtrar por tipo
+            if (types.length > 0 && types.length < 6) {
+                filtered = filtered.filter(e => types.includes(e.type));
+            }
+            
+            // Filtrar por impacto
+            if (impact && impact !== '') {
+                filtered = filtered.filter(e => e.impact === impact);
+            }
+            
+            // Filtrar por período (CORRIGIDO)
+            if (period !== 'all') {
+                const today = normalizeDate(new Date().toISOString().split('T')[0]);
+                const daysAhead = parseInt(period);
+                const futureDate = new Date(today);
+                futureDate.setDate(today.getDate() + daysAhead);
+                
+                filtered = filtered.filter(e => {
+                    return e.dateObject >= today && e.dateObject <= futureDate;
+                });
+            }
+            
+            // Aplicar ordenação (CORRIGIDO)
+            if (sortBy === 'date-asc') {
+                filtered.sort((a, b) => a.dateObject - b.dateObject);
+            } else if (sortBy === 'date-desc') {
+                filtered.sort((a, b) => b.dateObject - a.dateObject);
+            } else if (sortBy === 'impact-desc') {
+                const impactOrder = { high: 3, medium: 2, low: 1 };
+                filtered.sort((a, b) => {
+                    const impactDiff = impactOrder[b.impact] - impactOrder[a.impact];
+                    if (impactDiff !== 0) return impactDiff;
+                    return a.dateObject - b.dateObject; // Desempate por data
+                });
+            } else if (sortBy === 'ticker') {
+                filtered.sort((a, b) => {
+                    const tickerCompare = (a.ticker || '').localeCompare(b.ticker || '');
+                    if (tickerCompare !== 0) return tickerCompare;
+                    return a.dateObject - b.dateObject; // Desempate por data
+                });
+            }
+            
+            filteredEvents = filtered;
+            
+            // Atualizar estatísticas
+            calculateStats(allEvents);
+            
+            // Atualizar debug panel
+            updateDebugPanel(filtered);
+            
+            // Renderizar na view ativa
+            if (currentView === 'list') {
+                renderEventsList(filtered);
+            } else if (currentView === 'calendar') {
+                renderCalendar(filtered);
+            } else if (currentView === 'gantt') {
+                renderGantt(filtered);
+            }
+        }
+        
+        // ==================== FUNÇÃO: Reset filtros ====================
+        function resetFilters() {
+            document.getElementById('filter-ticker').value = '';
+            document.getElementById('filter-period').value = 'all';
+            document.getElementById('filter-impact').value = '';
+            document.getElementById('sort-select').value = 'date-asc';
+            
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.checked = true;
+            });
+            
+            applyFilters();
+        }
+        
+        // ==================== FUNÇÃO: Renderizar lista de eventos ====================
+        function renderEventsList(events) {
+            const container = document.getElementById('events-list');
+            const countEl = document.getElementById('events-count');
+            
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔭</div>
+                        <h3>Nenhum evento encontrado</h3>
+                        <p>Tente ajustar os filtros para ver mais eventos</p>
+                    </div>
+                `;
+                countEl.innerHTML = 'Mostrando <span>0</span> eventos';
+                return;
+            }
+            
+            countEl.innerHTML = `Mostrando <span>${events.length}</span> evento${events.length > 1 ? 's' : ''}`;
+            
+            // Agrupar por ticker
+            const grouped = groupEventsByTicker(events);
+            
+            let html = '';
+            Object.keys(grouped).sort().forEach(ticker => {
+                const tickerEvents = grouped[ticker];
+                html += `
+                    <div class="events-group">
+                        <div class="group-header">
+                            <div class="group-title">${ticker}</div>
+                            <div class="group-count">${tickerEvents.length} eventos</div>
+                        </div>
+                `;
+                
+                tickerEvents.forEach(event => {
+                    const countdown = getCountdown(event.date);
+                    const sentimentClass = event.sentiment === 'positive' ? 'badge-positive' : 
+                                          event.sentiment === 'negative' ? 'badge-negative' : 'badge-neutral';
+                    
+                    html += `
+                        <div class="event-card impact-${event.impact}">
+                            <div class="event-header">
+                                <div style="flex: 1;">
+                                    <div class="event-title">${event.title}</div>
+                                    <div class="event-date">
+                                        📅 ${formatDate(event.date)}
+                                        <span class="countdown ${countdown.urgent ? 'urgent' : ''}">${countdown.text}</span>
+                                    </div>
+                                </div>
+                                <span class="event-ticker">${event.ticker || 'GERAL'}</span>
+                            </div>
+                            
+                            <p class="event-description">${event.description}</p>
+                            
+                            <div class="event-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">Impacto</span>
+                                    <span class="badge ${event.impact === 'high' ? 'badge-negative' : event.impact === 'medium' ? 'badge-neutral' : 'badge-positive'}">
+                                        ${event.impact === 'high' ? '🔴 Alto' : event.impact === 'medium' ? '🟡 Médio' : '🟢 Baixo'}
+                                    </span>
+                                </div>
+                                
+                                <div class="meta-item">
+                                    <span class="meta-label">Sentimento</span>
+                                    <span class="badge ${sentimentClass}">
+                                        ${event.sentiment === 'positive' ? '📈 Positivo' : event.sentiment === 'negative' ? '📉 Negativo' : event.sentiment === 'mixed' ? '🔀 Misto' : '➖ Neutro'}
+                                    </span>
+                                </div>
+                                
+                                <div class="meta-item">
+                                    <span class="meta-label">Preço</span>
+                                    <span class="meta-value" style="color: ${event.priceImpact > 0 ? 'var(--success)' : event.priceImpact < 0 ? 'var(--danger)' : 'var(--warning)'};">
+                                        ${event.priceImpact > 0 ? '+' : ''}${(event.priceImpact * 100).toFixed(1)}%
+                                    </span>
+                                </div>
+                                
+                                <div class="meta-item">
+                                    <span class="meta-label">Confiança</span>
+                                    <span class="meta-value">${(event.confidence * 100).toFixed(0)}%</span>
+                                </div>
+                                
+                                <div class="meta-item">
+                                    <span class="meta-label">Probabilidade</span>
+                                    <span class="meta-value">${(event.probability * 100).toFixed(0)}%</span>
+                                </div>
+                                
+                                <div class="meta-item">
+                                    <span class="meta-label">Tipo</span>
+                                    <span class="meta-value" style="font-size: 0.9em; text-transform: capitalize;">${event.type}</span>
+                                </div>
+                            </div>
+                            
+                            ${event.sources && event.sources.length > 0 ? `
+                                <div class="event-sources">
+                                    <span style="font-size: 0.8em; color: rgba(255,255,255,0.6); font-weight: 600; margin-right: 8px;">📰 Fontes:</span>
+                                    ${event.sources.map(source => `<span class="source-tag">${source}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // ==================== FUNÇÃO: Renderizar calendário ====================
+        function renderCalendar(events) {
+            const calendarEl = document.getElementById('calendar');
+            
+            if (!calendar) {
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'pt-br',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listMonth'
+                    },
+                    height: 'auto',
+                    events: formatEventsForCalendar(events),
+                    eventClick: function(info) {
+                        const event = info.event.extendedProps;
+                        const eventData = `${info.event.title}\n\n${event.description}\n\n` +
+                                         `📊 Impacto: ${(event.priceImpact * 100).toFixed(1)}%\n` +
+                                         `🎯 Confiança: ${(event.confidence * 100).toFixed(0)}%\n` +
+                                         `📈 Probabilidade: ${(event.probability * 100).toFixed(0)}%`;
+                        alert(eventData);
+                    }
+                });
+            } else {
+                calendar.removeAllEvents();
+                calendar.addEventSource(formatEventsForCalendar(events));
+            }
+            
+            calendar.render();
+        }
+        
+        // ==================== FUNÇÃO: Renderizar Gantt ====================
+        function renderGantt(events) {
+            gantt.clearAll();
+            
+            gantt.config.date_format = "%Y-%m-%d";
+            gantt.config.columns = [
+                {name: "text", label: "Evento", width: "*", tree: true},
+                {name: "ticker", label: "Ticker", width: 80, align: "center"},
+                {name: "impact", label: "Impacto", width: 80, align: "center"}
+            ];
+            
+            // Customizar cores por impacto
+            gantt.templates.task_class = function(start, end, task){
+                if (task.impact === 'high') return 'impact-high-gantt';
+                if (task.impact === 'medium') return 'impact-medium-gantt';
+                return 'impact-low-gantt';
+            };
+            
+            // Tooltip customizado
+            gantt.templates.tooltip_text = function(start, end, task) {
+                return `<b>${task.text}</b><br/>
+                        <b>Ticker:</b> ${task.ticker}<br/>
+                        <b>Impacto:</b> ${(task.priceImpact * 100).toFixed(1)}%<br/>
+                        <b>Confiança:</b> ${(task.confidence * 100).toFixed(0)}%<br/>
+                        <b>Descrição:</b> ${task.description ? task.description.substring(0, 100) + '...' : 'N/A'}`;
+            };
+            
+            const ganttData = {
+                data: formatEventsForGantt(events)
+            };
+            
+            gantt.init("gantt-view");
+            gantt.parse(ganttData);
+        }
+        
+        // ==================== FUNÇÃO: Mudar view ====================
+        function changeView(view) {
+            currentView = view;
+            
+            // Atualizar botões
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Atualizar seções
+            document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(`${view}-view`).classList.add('active');
+            
+            // Renderizar view apropriada
+            if (view === 'calendar') {
+                renderCalendar(filteredEvents);
+            } else if (view === 'gantt') {
+                renderGantt(filteredEvents);
+            } else {
+                renderEventsList(filteredEvents);
+            }
+        }
+        
+        // ==================== FUNÇÃO: Export eventos ====================
+        function exportEvents() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                ["Ticker,Data,Evento,Tipo,Categoria,Impacto,Sentimento,Preco_Impacto,Confianca,Probabilidade,Fontes,Descricao"]
+                .concat(filteredEvents.map(e => 
+                    `${e.ticker || 'N/A'},${e.date},"${e.title.replace(/"/g, '""')}",${e.type},${e.category || 'N/A'},${e.impact},${e.sentiment},${(e.priceImpact * 100).toFixed(1)}%,${(e.confidence * 100).toFixed(0)}%,${(e.probability * 100).toFixed(0)}%,"${e.sources ? e.sources.join('; ') : 'N/A'}","${e.description.replace(/"/g, '""').substring(0, 200)}"`
+                ))
+                .join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `eventos_b3_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // ==================== INICIALIZAÇÃO ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando Timeline de Eventos v5.0...');
+            
+            // Carregar TODOS os eventos
+            allEvents = loadAllEvents();
+            console.log(`✅ ${allEvents.length} eventos carregados com sucesso`);
+            
+            // Aplicar filtros iniciais
+            applyFilters();
+            
+            // Adicionar listeners para filtros dinâmicos
+            document.getElementById('filter-ticker').addEventListener('change', applyFilters);
+            document.getElementById('filter-period').addEventListener('change', applyFilters);
+            document.getElementById('filter-impact').addEventListener('change', applyFilters);
+            
+            document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', applyFilters);
+            });
+            
+            console.log('✅ Sistema inicializado com sucesso!');
+        });
+    </script>
+</body>
+</html>
